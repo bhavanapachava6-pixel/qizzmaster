@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizMaster - Test Your Knowledge</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    width: 100%;
+    max-width: 650px;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+h1 {
+    text-align: center;
+    color: #6045c5;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 12px 0;
+    font-size: 16px;
+}
+
+button {
+    background: #6045c5;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 15px;
+}
+
+button:hover {
+    background: #4833a0;
+}
+
+.start-btn, .next-btn {
+    width: 100%;
+}
+
+.option {
+    display: block;
+    width: 100%;
+    background: #f1f1f8;
+    color: #333;
+    text-align: left;
+    margin: 10px 0;
+    border: 2px solid transparent;
+}
+
+.option:hover:not(:disabled) {
+    background: #e5e0ff;
+}
+
+.option:disabled {
+    cursor: default;
+    opacity: 1;
+}
+
+.correct {
+    background: #d4edda !important;
+    border-color: #28a745;
+}
+
+.wrong {
+    background: #f8d7da !important;
+    border-color: #dc3545;
+}
+
+.info {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+    color: #6045c5;
+    font-weight: bold;
+}
+
+.progress {
+    background: #eee;
+    height: 9px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.progress-bar {
+    background: #6045c5;
+    height: 9px;
+    width: 0%;
+    border-radius: 10px;
+}
+
+#feedback {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+#result {
+    text-align: center;
+}
+
+#result h2 {
+    color: #6045c5;
+    font-size: 30px;
+}
+
+#result p {
+    margin: 15px;
+    font-size: 18px;
+}
+
+.hidden {
+    display: none;
+}
+
+footer {
+    text-align: center;
+    margin-top: 25px;
+    color: #999;
+    font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🧠 QuizMaster</h1>
+    <p class="subtitle">Challenge Yourself. Learn Something New!</p>
+
+    <!-- HOME PAGE -->
+    <div id="home">
+
+        <h2>Welcome to QuizMaster! 👋</h2>
+        <p>Select your favourite quiz category:</p>
+
+        <select id="category">
+            <option value="general">General Knowledge</option>
+            <option value="science">Science</option>
+            <option value="computer">Computer Science</option>
+        </select>
+
+        <button class="start-btn" onclick="startQuiz()">
+            Start Quiz 🚀
+        </button>
+
+    </div>
+
+    <!-- QUIZ PAGE -->
+    <div id="quiz" class="hidden">
+
+        <div class="info">
+            <span id="questionCount">Question 1</span>
+            <span>⏱️ <span id="timer">30</span>s</span>
+            <span id="score">Score: 0</span>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <h2 id="question">Question goes here</h2>
+
+        <div id="options"></div>
+
+        <p id="feedback"></p>
+
+        <button class="next-btn hidden" id="nextBtn"
+        onclick="nextQuestion()">Next Question ➡️</button>
+
+    </div>
+
+    <!-- RESULT PAGE -->
+    <div id="result" class="hidden">
+
+        <h2>🏆 Quiz Completed!</h2>
+
+        <p id="finalScore"></p>
+        <p id="percentage"></p>
+        <p id="message"></p>
+
+        <button onclick="restartQuiz()">🔄 Play Again</button>
+
+    </div>
+
+    <footer>
+        © 2026 QuizMaster | Learn • Practice • Succeed
+    </footer>
+
+</div>
+
+<script>
+
+const questions = {
+
+general: [
+{
+q: "What is the capital of India?",
+options: ["Mumbai", "New Delhi", "Chennai", "Kolkata"],
+answer: 1
+},
+{
+q: "Which is the largest planet?",
+options: ["Earth", "Mars", "Jupiter", "Venus"],
+answer: 2
+},
+{
+q: "How many days are there in a leap year?",
+options: ["365", "366", "364", "360"],
+answer: 1
+},
+{
+q: "Who is known as the Father of the Nation in India?",
+options: ["Jawaharlal Nehru", "Mahatma Gandhi", "B. R. Ambedkar", "Subhas Chandra Bose"],
+answer: 1
+},
+{
+q: "Which is the national animal of India?",
+options: ["Lion", "Elephant", "Tiger", "Peacock"],
+answer: 2
+}
+],
+
+science: [
+{
+q: "What is the chemical formula of water?",
+options: ["CO2", "H2O", "O2", "NaCl"],
+answer: 1
+},
+{
+q: "Which planet is known as the Red Planet?",
+options: ["Venus", "Mars", "Jupiter", "Saturn"],
+answer: 1
+},
+{
+q: "What gas do plants absorb?",
+options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+answer: 2
+},
+{
+q: "What is the powerhouse of the cell?",
+options: ["Nucleus", "Mitochondria", "Ribosome", "Cell wall"],
+answer: 1
+},
+{
+q: "What is the boiling point of water at sea level?",
+options: ["50°C", "75°C", "100°C", "150°C"],
+answer: 2
+}
+],
+
+computer: [
+{
+q: "What does CPU stand for?",
+options: ["Central Processing Unit", "Computer Personal Unit", "Central Program Utility", "Control Processing User"],
+answer: 0
+},
+{
+q: "Which language is used for web page structure?",
+options: ["Python", "HTML", "C++", "Java"],
+answer: 1
+},
+{
+q: "What does RAM stand for?",
+options: ["Read Access Memory", "Random Access Memory", "Run Active Memory", "Ready Application Memory"],
+answer: 1
+},
+{
+q: "Which of these is an operating system?",
+options: ["Google", "Windows", "HTML", "Python"],
+answer: 1
+},
+{
+q: "Which symbol is used for comments in Python?",
+options: ["//", "#", "/*", "<!--"],
+answer: 1
+}
+]
+
+};
+
+let currentQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let timeLeft = 30;
+let timerInterval = null;
+let answered = false;
+
+function startQuiz() {
+
+    const category = document.getElementById("category").value;
+
+    currentQuestions = questions[category];
+    currentIndex = 0;
+    score = 0;
+
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("quiz").classList.remove("hidden");
+
+    showQuestion();
+}
+
+function showQuestion() {
+
+    clearInterval(timerInterval);
+
+    answered = false;
+    timeLeft = 30;
+
+    const q = currentQuestions[currentIndex];
+
+    document.getElementById("questionCount").textContent =
+        "Question " + (currentIndex + 1) + "/" + currentQuestions.length;
+
+    document.getElementById("score").textContent =
+        "Score: " + score;
+
+    document.getElementById("question").textContent = q.q;
+
+    document.getElementById("timer").textContent = timeLeft;
+
+    document.getElementById("progressBar").style.width =
+        (currentIndex / currentQuestions.length * 100) + "%";
+
+    document.getElementById("feedback").textContent = "";
+
+    document.getElementById("nextBtn").classList.add("hidden");
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    q.options.forEach((option, index) => {
+
+        const button = document.createElement("button");
+
+        button.textContent = option;
+        button.className = "option";
+
+        button.onclick = () => checkAnswer(index);
+
+        optionsDiv.appendChild(button);
+
+    });
+
+    timerInterval = setInterval(() => {
+
+        timeLeft--;
+
+        document.getElementById("timer").textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            checkAnswer(-1);
+        }
+
+    }, 1000);
+}
+
+function checkAnswer(selected) {
+
+    if (answered) return;
+
+    answered = true;
+    clearInterval(timerInterval);
+
+    const correct = currentQuestions[currentIndex].answer;
+    const buttons = document.querySelectorAll(".option");
+
+    buttons.forEach((button, index) => {
+
+        button.disabled = true;
+
+        if (index === correct) {
+            button.classList.add("correct");
+        }
+
+        if (index === selected && selected !== correct) {
+            button.classList.add("wrong");
+        }
+
+    });
+
+    if (selected === correct) {
+
+        score++;
+
+        document.getElementById("feedback").textContent =
+            "✅ Correct Answer!";
+
+        document.getElementById("feedback").style.color = "green";
+
+    } else {
+
+        document.getElementById("feedback").textContent =
+            selected === -1
+            ? "⏰ Time's up! The correct answer is " +
+              currentQuestions[currentIndex].options[correct]
+            : "❌ Incorrect! Correct answer: " +
+              currentQuestions[currentIndex].options[correct];
+
+        document.getElementById("feedback").style.color = "red";
+
+    }
+
+    document.getElementById("score").textContent =
+        "Score: " + score;
+
+    document.getElementById("nextBtn").classList.remove("hidden");
+
+    document.getElementById("nextBtn").textContent =
+        currentIndex === currentQuestions.length - 1
+        ? "View Results 🏆"
+        : "Next Question ➡️";
+}
+
+function nextQuestion() {
+
+    if (!answered) return;
+
+    currentIndex++;
+
+    if (currentIndex < currentQuestions.length) {
+        showQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function showResult() {
+
+    clearInterval(timerInterval);
+
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("result").classList.remove("hidden");
+
+    const percentage = (score / currentQuestions.length) * 100;
+
+    document.getElementById("finalScore").textContent =
+        "Your Score: " + score + "/" + currentQuestions.length;
+
+    document.getElementById("percentage").textContent =
+        "Percentage: " + percentage.toFixed(2) + "%";
+
+    let message;
+
+    if (percentage === 100) {
+        message = "🌟 Excellent! Perfect Score!";
+    } else if (percentage >= 60) {
+        message = "🎉 Great Job! Keep Learning!";
+    } else {
+        message = "💪 Good Try! Practice More!";
+    }
+
+    document.getElementById("message").textContent = message;
+
+    document.getElementById("progressBar").style.width = "100%";
+}
+
+function restartQuiz() {
+
+    clearInterval(timerInterval);
+
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+
+}
+
+</script>
+
+</body>
+</html>
